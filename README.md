@@ -25,37 +25,36 @@ O sistema combina um **AI Agent**, modelos da **OpenAI**, **embeddings**, busca 
 
 ## 🧠 Arquitetura
 
-O workflow utiliza um **AI Agent** como núcleo da aplicação.
+O workflow utiliza um **AI Agent** como núcleo da aplicação. O agente interpreta a pergunta do usuário, mantém o contexto da conversa e, quando necessário, consulta a base de conhecimento no **Pinecone** por meio de busca semântica.
 
-Ao receber uma mensagem, o agente analisa a solicitação e pode consultar o **Pinecone Vector Store** através de uma ferramenta especializada.
+```mermaid
+flowchart TD
+    A[💬 Usuário] --> B[Chat Trigger]
+    B --> C[🤖 AI Agent]
 
-Os trechos recuperados são utilizados como contexto para geração da resposta.
+    D[🧠 GPT-4o-mini] --> C
+    E[💾 Simple Memory] --> C
 
-```text
-Usuário
-   ↓
-Chat Trigger
-   ↓
-AI Agent
-   ├──────────────→ Simple Memory
-   │
-   ├──────────────→ GPT-4o-mini
-   │
-   └──────────────→ Vector Store Tool
-                         ↓
-                 Pinecone Vector Store
-                         ↓
-                  OpenAI Embeddings
-                         ↓
-                 Recuperação Semântica
-                         ↓
-                    GPT-4o-mini
-                         ↓
-                 Resposta ao Agente
-                         ↓
-                      Usuário
+    C --> F[🔎 Vector Store Tool]
 
+    G[🧠 GPT-4o-mini] --> F
+    H[(🗃️ Pinecone Vector Store)] --> F
+    I[🔢 OpenAI Embeddings] --> H
+
+    F --> C
+    C --> J[✅ Resposta ao usuário]
 ```
+
+### 🔄 Fluxo da consulta
+
+1. O usuário envia uma pergunta pelo **Chat Trigger**.
+2. O **AI Agent** interpreta a solicitação utilizando o **GPT-4o-mini**.
+3. A **Simple Memory** mantém o contexto recente da conversa.
+4. Quando necessário, o agente aciona a ferramenta de consulta à base vetorial.
+5. A pergunta é representada por **OpenAI Embeddings**.
+6. O **Pinecone** recupera os conteúdos semanticamente mais relacionados.
+7. O conteúdo recuperado é utilizado como contexto pelo modelo.
+8. O **AI Agent** gera a resposta final para o usuário.
 
 ## 🔄 Como funciona
 1. Entrada da pergunta
