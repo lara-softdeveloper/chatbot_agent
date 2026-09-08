@@ -57,7 +57,7 @@ AI Agent
 
 ```
 
-🔄 Como funciona
+## 🔄 Como funciona
 1. Entrada da pergunta
 
 O fluxo começa no nó Chat Trigger, que disponibiliza uma interface de chat para interação com o usuário.
