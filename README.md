@@ -27,26 +27,10 @@ O projeto combina **AI Agent**, **GPT-4o-mini**, **OpenAI Embeddings**, busca ve
 
 O workflow utiliza um **AI Agent** como núcleo da aplicação.
 
-O agente recebe a pergunta do usuário, mantém o contexto recente da conversa e, quando necessário, utiliza uma ferramenta de busca vetorial para consultar informações armazenadas no **Pinecone**.
+<p align="center">
+  <img src="Diagrama_Fluxo_Agentes_IA.png" alt="Arquitetura do Assistente Pessoal Multiagente" width="850">
+</p>
 
-```mermaid
-flowchart TD
-
-    A[💬 Usuário] --> B[Chat Trigger]
-    B --> C[🤖 AI Agent]
-
-    D[GPT-4o-mini] --> C
-    E[💾 Simple Memory] --> C
-
-    C --> F[🔎 Vector Store Tool]
-
-    G[GPT-4o-mini Retrieval] --> F
-    H[(🗃️ Pinecone Vector Store)] --> F
-    I[🔢 OpenAI Embeddings] --> H
-
-    F --> C
-    C --> J[✅ Resposta ao Usuário]
-```
 
 ---
 
