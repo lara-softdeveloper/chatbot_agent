@@ -1,10 +1,10 @@
 {
-  "name": "workflow",
+  "name": "Chatbot RAG - OpenAI + Pinecone",
   "nodes": [
     {
       "parameters": {
         "public": true,
-        "initialMessages": "Hi there! 👋\nMy name is Vic. How can I assist you today?",
+        "initialMessages": "Olá! 👋\nSou sua assistente virtual. Como posso ajudar?",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
@@ -14,7 +14,7 @@
         5728
       ],
       "id": "1aae189b-de5d-470a-bf0d-b6da17dbb240",
-      "name": "chat",
+      "name": "Chat Trigger",
       "webhookId": "f854cb0e-d598-4324-96e8-7e26851401e3"
     },
     {
@@ -36,7 +36,7 @@
         5920
       ],
       "id": "cb987f94-153c-4175-b0e9-b7ff1dd9c9fe",
-      "name": "OpenAI Chat Model"
+      "name": "OpenAI Chat Model - Agent"
     },
     {
       "parameters": {
@@ -54,7 +54,7 @@
     {
       "parameters": {
         "options": {
-          "systemMessage": "Responda com base nos arquivos do Pinecone Vector\n\nVocê é a assistente virtual\n\nQuando perguntarem\n\n\nVerifica se alguma ferramenta (tool) pode ser usada\n\nEnvia a pergunta como busca semântica para o Pinecone\n\nRecupera os trechos mais parecidos\n\nUsa o modelo OpenAI para gerar a resposta com base nesses dados\n\n"
+          "systemMessage": "Você é uma assistente virtual que responde perguntas utilizando uma base de conhecimento armazenada no Pinecone.\n\nSempre que a pergunta puder ser respondida utilizando a base de conhecimento, use a ferramenta de busca vetorial disponível.\n\nFluxo esperado:\n1. Analise a pergunta do usuário.\n2. Verifique se a ferramenta de busca na base vetorial pode ajudar.\n3. Consulte o Pinecone utilizando busca semântica.\n4. Utilize os trechos recuperados como contexto para elaborar a resposta.\n5. Responda de forma clara, objetiva e fiel às informações recuperadas.\n\nNão invente informações que não estejam presentes no contexto recuperado. Caso a base de conhecimento não contenha informações suficientes para responder à pergunta, informe isso ao usuário de forma clara."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -68,8 +68,8 @@
     },
     {
       "parameters": {
-        "name": "Data",
-        "description": "Call this tool to acsess the database to answer the user´s questions"
+        "name": "KnowledgeBase",
+        "description": "Use esta ferramenta para consultar a base de conhecimento e recuperar informações relevantes para responder às perguntas do usuário."
       },
       "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
       "typeVersion": 1,
@@ -78,7 +78,7 @@
         5920
       ],
       "id": "1e012475-7c5c-4b5c-803b-2d2398dbfcca",
-      "name": "Answer questions with a vector store"
+      "name": "Answer Questions with Vector Store"
     },
     {
       "parameters": {
@@ -91,14 +91,15 @@
         6304
       ],
       "id": "7568202c-9414-4318-9151-f32960c7fa4a",
-      "name": "Embeddings OpenAI3"
+      "name": "OpenAI Embeddings"
     },
     {
       "parameters": {
         "model": {
           "__rl": true,
           "mode": "list",
-          "value": "gpt-4o-mini"
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
         },
         "options": {}
       },
@@ -109,11 +110,11 @@
         6128
       ],
       "id": "9040221b-7c8b-41b7-a2a7-8e332952b01a",
-      "name": "OpenAI Chat Model "
+      "name": "OpenAI Chat Model - Retrieval"
     },
     {
       "parameters": {
-        "content": "## CHATBOT AGENT",
+        "content": "## CHATBOT RAG\n\nOpenAI + Pinecone + n8n",
         "height": 840,
         "width": 880,
         "color": 4
@@ -125,7 +126,7 @@
       ],
       "typeVersion": 1,
       "id": "f11141b7-c704-4f95-b65e-9e1b551bbfb9",
-      "name": "Sticky Note2"
+      "name": "Chatbot RAG"
     },
     {
       "parameters": {
@@ -151,7 +152,7 @@
   ],
   "pinData": {},
   "connections": {
-    "chat": {
+    "Chat Trigger": {
       "main": [
         [
           {
@@ -162,7 +163,7 @@
         ]
       ]
     },
-    "OpenAI Chat Model": {
+    "OpenAI Chat Model - Agent": {
       "ai_languageModel": [
         [
           {
@@ -184,7 +185,7 @@
         ]
       ]
     },
-    "Answer questions with a vector store": {
+    "Answer Questions with Vector Store": {
       "ai_tool": [
         [
           {
@@ -195,33 +196,33 @@
         ]
       ]
     },
-    "Embeddings OpenAI3": {
+    "OpenAI Embeddings": {
       "ai_embedding": [
         [
           {
-            "node": "Pinecone Vector Store1",
+            "node": "Pinecone Vector Store",
             "type": "ai_embedding",
             "index": 0
           }
         ]
       ]
     },
-    "OpenAI Chat Model 1": {
+    "OpenAI Chat Model - Retrieval": {
       "ai_languageModel": [
         [
           {
-            "node": "Answer questions with a vector store",
+            "node": "Answer Questions with Vector Store",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Pinecone Vector Store1": {
+    "Pinecone Vector Store": {
       "ai_vectorStore": [
         [
           {
-            "node": "Answer questions with a vector store",
+            "node": "Answer Questions with Vector Store",
             "type": "ai_vectorStore",
             "index": 0
           }
