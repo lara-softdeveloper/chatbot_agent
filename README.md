@@ -28,7 +28,7 @@ O projeto combina **AI Agent**, **GPT-4o-mini**, **OpenAI Embeddings**, busca ve
 O workflow utiliza um **AI Agent** como núcleo da aplicação.
 
 <p align="center">
-  <img src="Diagrama_Fluxo_Agentes_IA.png" alt="Arquitetura do Assistente Pessoal Multiagente" width="850">
+  <img src="ChatBotAgent.png" alt="Arquitetura do ChatBot" width="850">
 </p>
 
 
