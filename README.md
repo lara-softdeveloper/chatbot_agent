@@ -1,23 +1,23 @@
 # 🤖 Chatbot RAG com n8n, OpenAI e Pinecone
 
-Chatbot inteligente desenvolvido no **n8n** utilizando uma arquitetura baseada em **RAG (Retrieval-Augmented Generation)** para responder perguntas a partir de uma base de conhecimento armazenada no **Pinecone**.
+Assistente inteligente desenvolvido no **n8n** utilizando uma arquitetura **RAG (Retrieval-Augmented Generation)** para responder perguntas com base em uma base de conhecimento armazenada no **Pinecone**.
 
-O sistema combina um **AI Agent**, modelos da **OpenAI**, **embeddings**, busca vetorial e memória conversacional para recuperar informações relevantes antes de gerar a resposta.
+O projeto combina **AI Agent**, **GPT-4o-mini**, **OpenAI Embeddings**, busca vetorial, memória conversacional e **Pinecone** para recuperar informações relevantes antes de gerar uma resposta.
 
-> O objetivo é fazer com que o modelo utilize informações recuperadas da base vetorial como contexto, em vez de depender apenas do conhecimento geral do LLM.
+> Em vez de depender apenas do conhecimento geral do modelo de linguagem, o chatbot consulta uma base de conhecimento e utiliza o conteúdo recuperado como contexto para responder ao usuário.
 
 ---
 
-## 🚀 Principais funcionalidades
+## 🚀 Principais Funcionalidades
 
 - 💬 Interface de chat integrada ao n8n
-- 🤖 Agente de IA responsável por interpretar as perguntas
+- 🤖 Agente de IA para interpretação das perguntas
 - 🔎 Busca semântica em banco vetorial
 - 🧠 Arquitetura RAG
 - 📚 Consulta a uma base de conhecimento personalizada
-- 🔢 Embeddings gerados com OpenAI
-- 🗃️ Armazenamento e recuperação vetorial com Pinecone
-- 💾 Memória das últimas interações
+- 🔢 Geração de embeddings com OpenAI
+- 🗃️ Recuperação vetorial utilizando Pinecone
+- 💾 Memória contextual da conversa
 - 🔧 Uso do Vector Store como ferramenta do agente
 - ⚡ Geração de respostas com GPT-4o-mini
 
@@ -25,273 +25,352 @@ O sistema combina um **AI Agent**, modelos da **OpenAI**, **embeddings**, busca 
 
 ## 🧠 Arquitetura
 
-O workflow utiliza um **AI Agent** como núcleo da aplicação. O agente interpreta a pergunta do usuário, mantém o contexto da conversa e, quando necessário, consulta a base de conhecimento no **Pinecone** por meio de busca semântica.
+O workflow utiliza um **AI Agent** como núcleo da aplicação.
+
+O agente recebe a pergunta do usuário, mantém o contexto recente da conversa e, quando necessário, utiliza uma ferramenta de busca vetorial para consultar informações armazenadas no **Pinecone**.
 
 ```mermaid
 flowchart TD
+
     A[💬 Usuário] --> B[Chat Trigger]
     B --> C[🤖 AI Agent]
 
-    D[🧠 GPT-4o-mini] --> C
+    D[GPT-4o-mini] --> C
     E[💾 Simple Memory] --> C
 
     C --> F[🔎 Vector Store Tool]
 
-    G[🧠 GPT-4o-mini] --> F
+    G[GPT-4o-mini Retrieval] --> F
     H[(🗃️ Pinecone Vector Store)] --> F
     I[🔢 OpenAI Embeddings] --> H
 
     F --> C
-    C --> J[✅ Resposta ao usuário]
+    C --> J[✅ Resposta ao Usuário]
 ```
 
-### 🔄 Fluxo da consulta
+---
 
-1. O usuário envia uma pergunta pelo **Chat Trigger**.
-2. O **AI Agent** interpreta a solicitação utilizando o **GPT-4o-mini**.
-3. A **Simple Memory** mantém o contexto recente da conversa.
-4. Quando necessário, o agente aciona a ferramenta de consulta à base vetorial.
-5. A pergunta é representada por **OpenAI Embeddings**.
-6. O **Pinecone** recupera os conteúdos semanticamente mais relacionados.
-7. O conteúdo recuperado é utilizado como contexto pelo modelo.
-8. O **AI Agent** gera a resposta final para o usuário.
+## 🔄 Como Funciona
 
-## 🔄 Como funciona
-1. Entrada da pergunta
+### 1. Entrada da Pergunta
 
-O fluxo começa no nó Chat Trigger, que disponibiliza uma interface de chat para interação com o usuário.
+O fluxo começa no **Chat Trigger**, responsável por receber as mensagens enviadas pelo usuário.
 
-A mensagem é enviada diretamente ao AI Agent.
+A pergunta é encaminhada diretamente para o **AI Agent**.
 
-2. Interpretação pelo AI Agent
+---
+
+### 2. Interpretação pelo AI Agent
 
 O agente utiliza o modelo:
 
-GPT-4o-mini
+`GPT-4o-mini`
 
 com temperatura configurada em:
 
-0.7
+`0.7`
 
-O prompt de sistema orienta o agente a responder utilizando as informações disponíveis na base vetorial do Pinecone.
+O agente analisa a solicitação do usuário e verifica se a base de conhecimento pode ser utilizada para responder à pergunta.
 
-O agente também verifica se uma ferramenta pode ser utilizada para responder à solicitação.
+---
 
-3. Recuperação de informações
+### 3. Consulta à Base Vetorial
 
-O agente possui acesso à ferramenta:
+Quando necessário, o agente utiliza a ferramenta:
 
-Answer questions with a vector store
+`Answer Questions with Vector Store`
 
-Essa ferramenta permite consultar a base de conhecimento armazenada no Pinecone.
+Essa ferramenta permite consultar a base de conhecimento armazenada no **Pinecone**.
 
-A pergunta é representada semanticamente por meio de embeddings, permitindo localizar conteúdos relacionados ao significado da consulta.
+A consulta é transformada em uma representação vetorial utilizando **OpenAI Embeddings**.
 
-4. Busca vetorial
+---
 
-O projeto utiliza:
+### 4. Busca Semântica
 
+O **Pinecone Vector Store** realiza uma busca por similaridade entre a pergunta do usuário e os conteúdos armazenados.
+
+Isso permite encontrar informações relacionadas ao **significado da pergunta**, e não apenas correspondências exatas de palavras.
+
+---
+
+### 5. Recuperação do Contexto
+
+Os conteúdos semanticamente mais relacionados à pergunta são recuperados da base vetorial.
+
+Essas informações são utilizadas como contexto pelo modelo de linguagem responsável pela recuperação.
+
+---
+
+### 6. Geração da Resposta
+
+O conteúdo recuperado retorna ao **AI Agent**, que utiliza essas informações para gerar uma resposta clara e contextualizada para o usuário.
+
+---
+
+## 🔄 Fluxo RAG
+
+```text
+Pergunta do usuário
+        ↓
+    Chat Trigger
+        ↓
+      AI Agent
+        ↓
+Vector Store Tool
+        ↓
+OpenAI Embeddings
+        ↓
+Busca Semântica
+        ↓
 Pinecone Vector Store
+        ↓
+Recuperação do Contexto
+        ↓
+    GPT-4o-mini
+        ↓
+      AI Agent
+        ↓
+Resposta ao Usuário
+```
 
-com o índice:
+---
 
-n8n
+## 💾 Memória Conversacional
 
-O Pinecone realiza a recuperação dos vetores semanticamente relacionados à pergunta.
+O projeto utiliza **Simple Memory** para manter o contexto recente da conversa.
 
-Isso permite encontrar informações mesmo quando a pergunta não utiliza exatamente as mesmas palavras presentes nos documentos originais.
+A janela de memória está configurada para:
 
-5. Geração da resposta
+`25`
 
-Após recuperar o contexto relevante, outro modelo GPT-4o-mini é utilizado pela ferramenta de Vector Store para trabalhar com os dados recuperados.
+Isso permite que o chatbot interprete perguntas relacionadas às mensagens anteriores.
 
-O resultado retorna ao AI Agent, que produz a resposta final para o usuário.
+### Exemplo
 
-💾 Memória Conversacional
+**Usuário:**
 
-O chatbot utiliza:
+> Qual é a política de férias da empresa?
 
-Simple Memory
+**Assistente:**
 
-com uma janela de contexto configurada para:
+> [Resposta baseada na base de conhecimento]
 
-25 interações
+**Usuário:**
 
-Isso permite manter parte do contexto da conversa e interpretar perguntas relacionadas a mensagens anteriores.
+> E como funciona para quem entrou este ano?
 
-Exemplo
-Usuário:
-Qual é a política de férias da empresa?
+Nesse caso, a memória ajuda o agente a compreender que a segunda pergunta continua relacionada ao assunto anterior.
 
-Assistente:
-[resposta baseada na base de conhecimento]
+---
 
-Usuário:
-E como funciona para quem entrou este ano?
+## 🔎 Busca Semântica
 
-A memória ajuda o agente a compreender que a segunda pergunta continua relacionada ao assunto anterior.
+A busca vetorial permite localizar informações com base no significado dos textos.
 
-🔎 Busca Semântica
+Por exemplo, um documento pode conter:
 
-O sistema utiliza embeddings para representar o significado dos textos matematicamente.
-
-Isso permite recuperar informações por similaridade semântica, e não somente por palavras-chave.
-
-Exemplo
-
-Um documento pode conter:
-
-Os colaboradores possuem direito a trinta dias
-de descanso remunerado após o período aquisitivo.
+> Os colaboradores possuem direito a trinta dias de descanso remunerado após o período aquisitivo.
 
 Enquanto o usuário pergunta:
 
-Quantos dias de férias um funcionário possui?
+> Quantos dias de férias um funcionário possui?
 
-Mesmo sem correspondência exata entre as palavras, os embeddings podem identificar a proximidade semântica entre os conteúdos.
+Mesmo sem utilizar exatamente as mesmas palavras, os **embeddings** permitem identificar a proximidade semântica entre os conteúdos.
 
-🛠️ Tecnologias Utilizadas
-⚙️ Automação e Orquestração
+---
 
-n8n
+## 🛠️ Tecnologias Utilizadas
 
-🤖 Inteligência Artificial
+### ⚙️ Automação e Orquestração
 
-OpenAI API
-GPT-4o-mini
-AI Agent
-LLMs
+- **n8n**
 
-🔢 Representação Vetorial
+### 🤖 Inteligência Artificial
 
-OpenAI Embeddings
-Vector Embeddings
+- **OpenAI API**
+- **GPT-4o-mini**
+- **AI Agent**
+- **Large Language Models (LLMs)**
 
-🗃️ Banco Vetorial
+### 🔢 Representação Vetorial
 
-Pinecone
+- **OpenAI Embeddings**
+- **Vector Embeddings**
 
-🧠 Arquitetura e Conceitos
+### 🗃️ Banco Vetorial
 
-Retrieval-Augmented Generation (RAG)
-Semantic Search
-Vector Search
-Similarity Search
-Tool Calling
-Context Retrieval
-Conversational Memory
+- **Pinecone**
 
-🧩 Nodes principais do workflow
-Node	Função
-chat	Recebe as mensagens do usuário
-AI Agent	Interpreta a solicitação e coordena a resposta
-OpenAI Chat Model	Modelo principal utilizado pelo agente
-Simple Memory	Mantém o contexto recente da conversa
-Answer questions with a vector store	Ferramenta usada pelo agente para consultar a base
-Pinecone Vector Store	Recupera informações da base vetorial
-Embeddings OpenAI	Gera representações vetoriais
-OpenAI Chat Model	Trabalha com o conteúdo recuperado
-🎯 Fluxo RAG
-Pergunta
-   ↓
-AI Agent
-   ↓
-Consulta ao Vector Store
-   ↓
-Embedding da consulta
-   ↓
-Busca semântica no Pinecone
-   ↓
-Recuperação de contexto
-   ↓
-GPT-4o-mini
-   ↓
-AI Agent
-   ↓
-Resposta
-📚 Base de Conhecimento
+### 🧠 Arquitetura e Conceitos
 
-Este workflow realiza a consulta à base vetorial.
+- Retrieval-Augmented Generation (RAG)
+- Semantic Search
+- Vector Search
+- Similarity Search
+- Tool Calling
+- Context Retrieval
+- Conversational Memory
 
-Os documentos precisam ser processados e inseridos previamente no Pinecone através de outro workflow, script ou processo de ingestão.
+---
 
-Um pipeline de ingestão pode seguir a estrutura:
+## 🧩 Principais Nodes do Workflow
 
+| Node | Função |
+| --- | --- |
+| `Chat Trigger` | Recebe as mensagens do usuário |
+| `AI Agent` | Interpreta a solicitação e coordena a resposta |
+| `OpenAI Chat Model - Agent` | Modelo de linguagem utilizado pelo agente principal |
+| `Simple Memory` | Mantém o contexto recente da conversa |
+| `Answer Questions with Vector Store` | Ferramenta utilizada para consultar a base vetorial |
+| `Pinecone Vector Store` | Realiza a recuperação das informações armazenadas |
+| `OpenAI Embeddings` | Gera as representações vetoriais das consultas |
+| `OpenAI Chat Model - Retrieval` | Processa as informações recuperadas pelo Vector Store |
+
+---
+
+## 📚 Base de Conhecimento
+
+Este workflow é responsável pela **consulta da base vetorial**.
+
+Os documentos precisam estar previamente processados e armazenados no **Pinecone**.
+
+A ingestão dos documentos pode ser realizada por outro workflow ou processo separado.
+
+Um pipeline de ingestão típico pode seguir esta estrutura:
+
+```text
 Documento
-   ↓
-Extração de texto
-   ↓
-Chunking
-   ↓
+    ↓
+Extração de Texto
+    ↓
+Divisão em Chunks
+    ↓
 OpenAI Embeddings
-   ↓
+    ↓
 Pinecone
+```
 
-Esse processo é independente do workflow de consulta apresentado neste repositório.
+O processo de ingestão não faz parte deste workflow de consulta.
 
-🎯 Possíveis aplicações
+---
 
-A mesma arquitetura pode ser utilizada para diferentes bases de conhecimento.
+## 🎯 Possíveis Aplicações
 
-🏢 Empresas
-Políticas internas
-Procedimentos
-Documentação corporativa
-Manuais
-👥 Recursos Humanos
-Benefícios
-Férias
-Licenças
-Normas internas
-⚖️ Jurídico
-Contratos
-Regulamentos
-Documentos jurídicos
-🎓 Educação e Pesquisa
-Artigos científicos
-Apostilas
-Materiais didáticos
-Bases acadêmicas
-🛠️ Suporte
-FAQs
-Documentação técnica
-Manuais
-Base de conhecimento de produtos
-🔮 Possíveis Evoluções
- Criar workflow próprio para ingestão de documentos
- Upload automático de PDFs
- Chunking configurável
- Armazenamento de metadados
- Citação automática das fontes
- Filtros por documento ou categoria
- Re-ranking dos resultados recuperados
- Memória persistente
- Autenticação de usuários
- Controle de acesso por base documental
- Avaliação automática da qualidade das respostas
- Observabilidade e logs das consultas
-⚠️ Observação sobre RAG
+A mesma arquitetura pode ser utilizada em diferentes contextos.
 
-O uso de RAG ajuda a produzir respostas mais fundamentadas na base de conhecimento, mas não elimina completamente possíveis erros ou alucinações do modelo.
+### 🏢 Empresas
 
-A qualidade final depende de fatores como:
+- Políticas internas
+- Procedimentos
+- Documentação corporativa
+- Manuais
+- Bases de conhecimento internas
 
-qualidade dos documentos;
-estratégia de chunking utilizada na ingestão;
-modelo de embeddings;
-qualidade da recuperação vetorial;
-prompt do agente;
-quantidade e relevância dos trechos recuperados.
-📚 O que este projeto demonstra
+### 👥 Recursos Humanos
 
-n8n • RAG • OpenAI • GPT-4o-mini • Pinecone • AI Agents • Embeddings • Vector Database • Semantic Search • Tool Calling • Conversational Memory
+- Benefícios
+- Férias
+- Licenças
+- Normas internas
+- Procedimentos de RH
 
-👩‍💻 Autora
+### ⚖️ Jurídico
 
-Lara Santos Pereira Soares
+- Contratos
+- Regulamentos
+- Documentos jurídicos
+- Normas internas
 
-💼 LinkedIn
-🐙 GitHub
+### 🎓 Educação e Pesquisa
 
-⭐ Se este projeto foi interessante, considere deixar uma Star no repositório.
+- Artigos científicos
+- Apostilas
+- Materiais didáticos
+- Documentação acadêmica
+- Bases personalizadas de pesquisa
+
+### 🛠️ Suporte Técnico
+
+- FAQs
+- Documentação técnica
+- Manuais
+- Base de conhecimento de produtos
+- Procedimentos de atendimento
+
+---
+
+## 💡 Por que utilizar RAG?
+
+A arquitetura **Retrieval-Augmented Generation** permite combinar a capacidade de geração dos modelos de linguagem com informações externas armazenadas em uma base de conhecimento.
+
+Entre as principais vantagens estão:
+
+- 🔎 Busca por significado
+- 📚 Uso de informações específicas da aplicação
+- ⚡ Consulta rápida em grandes bases documentais
+- 🔄 Atualização da base sem necessidade de treinar novamente o modelo
+- 🧠 Respostas mais contextualizadas
+- 📌 Possibilidade de adicionar rastreabilidade e fontes
+- 🛡️ Redução de respostas desconectadas da base de conhecimento
+
+---
+
+## ⚠️ Confiabilidade
+
+A utilização de RAG ajuda a reduzir respostas sem fundamentação, mas não elimina completamente possíveis erros ou alucinações de modelos de linguagem.
+
+A qualidade da resposta depende de fatores como:
+
+- qualidade dos documentos;
+- estratégia de chunking utilizada na ingestão;
+- modelo de embeddings;
+- qualidade da recuperação vetorial;
+- quantidade de informações recuperadas;
+- prompt utilizado pelo agente;
+- relevância dos conteúdos armazenados.
+
+Em aplicações críticas, mecanismos adicionais de validação e rastreabilidade são recomendados.
+
+---
+
+## 🔮 Possíveis Evoluções
+
+- [ ] Criar workflow próprio para ingestão de documentos
+- [ ] Upload automático de arquivos
+- [ ] Suporte ampliado a PDF
+- [ ] Chunking configurável
+- [ ] Armazenamento de metadados
+- [ ] Citação automática das fontes
+- [ ] Filtros por documento ou categoria
+- [ ] Re-ranking dos resultados recuperados
+- [ ] Memória persistente
+- [ ] Autenticação de usuários
+- [ ] Controle de acesso
+- [ ] Histórico de conversas
+- [ ] Observabilidade e logs
+- [ ] Avaliação automática da qualidade das respostas
+
+---
+
+## 📚 O que este Projeto Demonstra
+
+Este projeto demonstra conhecimentos em:
+
+`n8n` • `RAG` • `OpenAI` • `GPT-4o-mini` • `Pinecone` • `AI Agents` • `Embeddings` • `Vector Database` • `Semantic Search` • `Tool Calling` • `Conversational Memory`
+
+---
+
+## 👩‍💻 Autora
+
+**Lara Santos Pereira Soares**
+
+💼 [LinkedIn](https://linkedin.com/in/lara-soares-668a97326)  
+🐙 [GitHub](https://github.com/lara-softdeveloper)
+
+---
+
+⭐ Se este projeto foi interessante, considere deixar uma **Star** no repositório.
+````
+
 
