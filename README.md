@@ -54,6 +54,9 @@ AI Agent
                  Resposta ao Agente
                          ↓
                       Usuário
+
+```
+
 🔄 Como funciona
 1. Entrada da pergunta
 
